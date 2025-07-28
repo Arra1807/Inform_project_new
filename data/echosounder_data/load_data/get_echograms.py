@@ -37,12 +37,13 @@ def get_echograms(years, tuple_frequencies, minimum_shape):
 
     if years != 'all':
         # Ensure years is iterable
-        if type(years) not in [list, tuple, np.ndarray]:
+        if not isinstance(years, (list, tuple, np.ndarray)):
             years = [years]
 
         # Filter on years
         echograms = [e for e in echograms if e.year in years]
-    return echograms
+        
+    return echograms[:10]
 
 
 
