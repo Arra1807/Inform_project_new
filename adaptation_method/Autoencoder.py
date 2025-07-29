@@ -1,9 +1,9 @@
 import torch    
 import torch.nn as nn
-from torchvision.models import resnet18, ResNet18_Weights
+from torchvision.models import resnet34, ResNet34_Weights
 
 def spatial_preserving_resnet(in_channels = 6):
-    model = resnet18(weights = ResNet18_Weights.IMAGENET1K_V1)
+    model = resnet34(weights = ResNet34_Weights.IMAGENET1K_V1)
     model.conv1 = nn.Conv2d(in_channels, 64, kernel_size= 3, stride=1, padding=1, bias= False)
     model.bn1 = nn.BatchNorm2d(64)
     model.maxpool = nn.Identity()
@@ -14,23 +14,33 @@ def spatial_preserving_resnet(in_channels = 6):
             block.conv1.stride = (1,1)
     return model
 
+def freeze_layers(model):
+    for param in model.conv1.parameters():
+        param.requires_grad = False
+    for param in model.bn1.parameters():
+        param.requires_grad = False
+    for param in model.layer1.parameters():
+        param.requires_grad = False
+    return model
+
 class ResNetAutoEncoder(nn.Module):
     def __init__(self, in_channels = 6, latent_dim = 3):
         super().__init__()
-        model = spatial_preserving_resnet(in_channels)   
+        model = spatial_preserving_resnet(in_channels) 
+        model = freeze_layers(model)  
         #Avoiding Maxpooling
-        self.encoder = nn.Sequential(*list(model.children())[:-5])
+        self.encoder = nn.Sequential(*list(model.children())[:-2])
         self.compressor = nn.Sequential(
-          nn.Conv2d(64, latent_dim, kernel_size =1), 
+          nn.Conv2d(512, latent_dim, kernel_size =1), 
           nn.BatchNorm2d(latent_dim),
           nn.Sigmoid()
         )
             
         self.decoder = nn.Sequential(
-            nn.Conv2d(latent_dim, 64, kernel_size=3, padding=1),
-            nn.BatchNorm2d(64),
+            nn.Conv2d(latent_dim, 512, kernel_size=3, padding=1),
+            nn.BatchNorm2d(512),
             nn.ReLU(),
-            nn.Conv2d(64, in_channels, kernel_size=3, padding=1), 
+            nn.Conv2d(512, in_channels, kernel_size=3, padding=1), 
             nn.Sigmoid()
         )
         
@@ -39,6 +49,7 @@ class ResNetAutoEncoder(nn.Module):
      compressed = self.compressor(encoded)
      reconstructed = self.decoder(compressed)
      return reconstructed, compressed  
+
 
 
 
