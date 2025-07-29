@@ -1,4 +1,4 @@
-from adaptation_method.Autoencoder import ResNetAutoEncoder, Autoencoder
+from Inform_project_new.adaptation_method.Autoencoder import ResNetAutoEncoder, Autoencoder
 import wandb
 def Configuration():    
     run = wandb.init(
