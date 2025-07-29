@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import torch.optim as optim
 from tqdm import tqdm 
 import torch.nn.functional as F
-from model_config import Configuration
-from EarlyStopping import EarlyStopping
+from Inform_project_new.adaptation_method.model_config import Configuration
+from Inform_project_new.adaptation_method.EarlyStopping import EarlyStopping
 
 def train_val_encoder(model, optimizer, Loss_func, num_epochs, dataloader_train, dataloader_test, run):
     avg_loss_train = []
