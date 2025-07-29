@@ -21,7 +21,7 @@ def train_val_encoder(model, optimizer, Loss_func, num_epochs, dataloader_train,
         model.train()
         epoch_loss = 0
         for batch in tqdm(dataloader_train, desc=f'Epoch {epoch+1}/{num_epochs}'):
-            print(batch[0])
+            print(batch[0].shape)
             inputs = batch[0]
             optimizer.zero_grad()
             
