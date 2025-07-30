@@ -42,14 +42,8 @@ def get_echograms(years, tuple_frequencies, minimum_shape):
 
         # Filter on years
         echograms = [e for e in echograms if e.year in years]
-        
-    echo = []
-    for i, e in enumerate(echograms):
-        if i < 10:
-            echo.append(e)
-    return echo
 
-
+    return echograms[:10]
 
 # Count the number of classes in the echograms
 def count_classes_in_echograms(echograms):
