@@ -2,12 +2,14 @@ import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
 import torch.optim as optim
+from torch.utils.data import dataloader
 from tqdm import tqdm 
 import torch.nn.functional as F
-from Inform_project_new.adaptation_method.model_config import Configuration
-from Inform_project_new.adaptation_method.EarlyStopping import EarlyStopping
+import sys
+sys.path.append('C:/Users/shado/Documents/Master Thesis/INFORM_marine-main_new/INFORM_marine-main/adaptation_method')
+from EarlyStopping import EarlyStopping
 
-def train_val_encoder(model, optimizer, Loss_func, num_epochs, data_train, data_test, run):
+def train_val_encoder(model, optimizer, Loss_func, num_epochs, train_dataloader, test_dataloader, run):
     avg_loss_train = []
     avg_loss_val = []
     best_val_loss = float('inf')
@@ -16,48 +18,56 @@ def train_val_encoder(model, optimizer, Loss_func, num_epochs, data_train, data_
     stop_epoch = None
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
+    
+    all_train_latents = []
+    all_val_latents = []
+    
     #---Training---
     for epoch in range(num_epochs):
-        encoded_all = []
-        val_encoded_all = []
-        
         model.train()
         epoch_loss = 0
-        for batch in tqdm(data_train, desc=f'Epoch {epoch+1}/{num_epochs}'):
-            print(batch.shape)
-            inputs = batch.to(device)
+        epoch_latents = []
+        
+        for label, data, mask in tqdm(train_dataloader, desc=f'Epoch {epoch+1}/{num_epochs}'):
+            label, data, mask = label.to(device),data.to(device), mask.to(device)
             optimizer.zero_grad()
             
-            outputs, encoded = model(inputs)
-            loss = Loss_func(outputs, inputs)
+            outputs, latent = model(data)
+            loss = Loss_func(outputs, data)
             loss.backward()
             optimizer.step()
             
             epoch_loss += loss.item()
-            encoded_all.append(encoded.detach().cpu())
-            
+            epoch_latents.append(latent.detach().cpu())
 
-        train_avg_loss = epoch_loss / len(data_train)
+        train_avg_loss = epoch_loss / len(train_dataloader)
         avg_loss_train.append(train_avg_loss)
-
+        
+        #Saving all epoch latents
+        all_train_latents.append(torch.cat(epoch_latents, dim = 0))
 
         #print(f"Train encodings: min={encoded.min():.4f}, max={encoded.max():.4f}")
         
         # --- Validation ---
         model.eval()
         val_loss = 0
-
+        val_latents = []
+        
         with torch.no_grad():
-            for batch in data_test:
-                inputs = batch.to(device)
-                val_outputs, val_encoded = model(inputs)
-                loss = Loss_func(val_outputs, inputs)
+            for label, data, mask in test_dataloader:
+                label, data, mask = label.to(device), data.to(device), mask.to(device)
+                val_outputs, val_latent = model(data)
+                loss = Loss_func(val_outputs, data)
                 val_loss += loss.item()
-                val_encoded_all.append(val_encoded.detach().cpu())
+                val_latents.append(val_latent.detach().cpu())
         
                   
-        val_avg_loss = val_loss / len(data_test)
+        val_avg_loss = val_loss / len(test_dataloader)
         avg_loss_val.append(val_avg_loss)
+        
+        #Saving validation latents
+        all_val_latents.append(torch.cat(val_latents, dim = 0))
+        
         
         #print(f"Val encodings: min={val_encoded.min():.4f}, max={val_encoded.max():.4f}")
         print(f" Train Loss = {train_avg_loss:.4f} ,Validation Loss = {val_avg_loss:.4f}")
@@ -74,24 +84,17 @@ def train_val_encoder(model, optimizer, Loss_func, num_epochs, data_train, data_
             best_val_loss = val_avg_loss
             torch.save(model.state_dict(), best_model_path)
             
-            best_encoded_train = torch.cat(encoded_all, dim = 0)
-            best_encoded_val = torch.cat(val_encoded_all, dim = 0)
-            
             print(f'Saved new best model at epoch {epoch+1} with val_loss = {val_avg_loss:.4f}')
 
             
         #Logging Hyperparameters
-            run.log({
-                'epoch': epoch+1, 
-                'train_loss':  train_avg_loss,
-                'val_loss': val_avg_loss,
-            })
+        run.log({
+            'epoch': epoch+1, 
+            'train_loss':  train_avg_loss,
+            'val_loss': val_avg_loss,
+        })
 
-        if best_val_loss == float('inf'):
-            best_encoded_train = None
-            best_encoded_train = None
-
-    return best_encoded_train, avg_loss_train, best_encoded_val, avg_loss_val, stop_epoch
+    return all_train_latents[-1], avg_loss_train, all_val_latents[-1], avg_loss_val, stop_epoch
 
 
 def plot_loss(num_epochs, avg_loss_train, avg_loss_val, stop_epoch):
@@ -108,5 +111,4 @@ def plot_loss(num_epochs, avg_loss_train, avg_loss_val, stop_epoch):
     plt.legend()
     plt.grid(True)
     plt.show()
-    
     
