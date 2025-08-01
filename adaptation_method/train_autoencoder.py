@@ -28,12 +28,14 @@ def train_val_encoder(model, optimizer, Loss_func, num_epochs, train_dataloader,
         epoch_loss = 0
         epoch_latents = []
         
-        for label, data, mask in tqdm(train_dataloader, desc=f'Epoch {epoch+1}/{num_epochs}'):
-            label, data, mask = label.to(device),data.to(device), mask.to(device)
+        for label, train_data, mask in tqdm(train_dataloader, desc=f'Epoch {epoch+1}/{num_epochs}'):
+            label = label.to(device)
+            train_data = train_data.to(device)
+            mask = mask.to(device)
             optimizer.zero_grad()
             
-            outputs, latent = model(data)
-            loss = Loss_func(outputs, data)
+            outputs, latent = model(train_data)
+            loss = Loss_func(outputs, train_data)
             loss.backward()
             optimizer.step()
             
@@ -54,10 +56,10 @@ def train_val_encoder(model, optimizer, Loss_func, num_epochs, train_dataloader,
         val_latents = []
         
         with torch.no_grad():
-            for label, data, mask in test_dataloader:
-                label, data, mask = label.to(device), data.to(device), mask.to(device)
-                val_outputs, val_latent = model(data)
-                loss = Loss_func(val_outputs, data)
+            for label, test_data, mask in test_dataloader:
+                test_data = test_data.to(device)
+                val_outputs, val_latent = model(test_data)
+                loss = Loss_func(val_outputs, test_data)
                 val_loss += loss.item()
                 val_latents.append(val_latent.detach().cpu())
         
