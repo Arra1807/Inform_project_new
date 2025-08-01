@@ -4,7 +4,7 @@ def Configuration(model_name = 'ResNetAutoEncoder'):
     run = wandb.init(
         project= 'Adapter',
         config = { 
-            'model': model_name
+            'model': model_name,
             'batch_size': 32,
             'learning_rate': 1e-5,        
             'epochs': 50,
