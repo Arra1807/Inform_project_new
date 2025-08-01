@@ -1,9 +1,10 @@
 from Inform_project_new.adaptation_method.Autoencoder import ResNetAutoEncoder, Autoencoder
 import wandb
-def Configuration():    
+def Configuration(model_name = 'ResNetAutoEncoder'):    
     run = wandb.init(
         project= 'Adapter',
         config = { 
+            'model': model_name
             'batch_size': 32,
             'learning_rate': 3e-4,        
             'epochs': 50,
