@@ -28,11 +28,11 @@ def train_val_encoder(model, optimizer, Loss_func, num_epochs, train_dataloader,
         epoch_loss = 0
         epoch_latents = []
         
-        for label, train_data, mask in tqdm(train_dataloader, desc=f'Epoch {epoch+1}/{num_epochs}'):
-        #for train_data in tqdm(train_dataloader, desc=f'Epoch {epoch+1}/{num_epochs}'):
-            label = label.to(device).squeeze(0)
-            train_data = train_data.to(device).squeeze(0)
-            mask = mask.to(device).squeeze(0)
+        #for label, train_data, mask in tqdm(train_dataloader, desc=f'Epoch {epoch+1}/{num_epochs}'):
+        for train_data in tqdm(train_dataloader, desc=f'Epoch {epoch+1}/{num_epochs}'):
+            #label = label.to(device)
+            train_data = train_data.to(device)
+            #mask = mask.to(device)
             optimizer.zero_grad()
             
             outputs, latent = model(train_data)
@@ -41,7 +41,7 @@ def train_val_encoder(model, optimizer, Loss_func, num_epochs, train_dataloader,
             optimizer.step()
             
             epoch_loss += loss.item()
-            epoch_latents.append(latent.detach().cpu())
+            #epoch_latents.append(latent.detach().cpu())
 
         train_avg_loss = epoch_loss / len(train_dataloader)
         avg_loss_train.append(train_avg_loss)
@@ -57,16 +57,16 @@ def train_val_encoder(model, optimizer, Loss_func, num_epochs, train_dataloader,
         val_latents = []
         
         with torch.no_grad():
-            for label, test_data, mask in test_dataloader:
-            #for test_data in test_dataloader:
-                label = label.to(device).squeeze(0)
-                test_data = test_data.to(device).squeeze(0)
-                mask = mask.to(device).squeeze(0)
+            #for label, test_data, mask in test_dataloader:
+            for test_data in test_dataloader:
+                #label = label.to(device)
+                test_data = test_data.to(device)
+                #mask = mask.to(device)
                 
                 val_outputs, val_latent = model(test_data)
                 loss = Loss_func(val_outputs, test_data)
                 val_loss += loss.item()
-                val_latents.append(val_latent.detach().cpu())
+                #val_latents.append(val_latent.detach().cpu())
         
                   
         val_avg_loss = val_loss / len(test_dataloader)
@@ -119,6 +119,7 @@ def plot_loss(num_epochs, avg_loss_train, avg_loss_val, stop_epoch):
     plt.grid(True)
     plt.show()
     
+
 
 
 
