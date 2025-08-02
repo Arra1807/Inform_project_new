@@ -14,7 +14,7 @@ def train_val_encoder(model, optimizer, Loss_func, num_epochs, train_dataloader,
     avg_loss_val = []
     best_val_loss = float('inf')
     best_model_path = 'best_autoencoder.pth'
-    earlystopping = EarlyStopping(patience= 3)
+    earlystopping = EarlyStopping(patience= 10)
     stop_epoch = None
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
@@ -28,10 +28,11 @@ def train_val_encoder(model, optimizer, Loss_func, num_epochs, train_dataloader,
         epoch_loss = 0
         epoch_latents = []
         
-        for label, train_data, mask in tqdm(train_dataloader, desc=f'Epoch {epoch+1}/{num_epochs}'):
-            label = label.to(device)
+        #for label, train_data, mask in tqdm(train_dataloader, desc=f'Epoch {epoch+1}/{num_epochs}'):
+        for train_data in tqdm(train_dataloader, desc=f'Epoch {epoch+1}/{num_epochs}'):
+            #label = label.to(device)
             train_data = train_data.to(device)
-            mask = mask.to(device)
+            #mask = mask.to(device)
             optimizer.zero_grad()
             
             outputs, latent = model(train_data)
@@ -56,7 +57,8 @@ def train_val_encoder(model, optimizer, Loss_func, num_epochs, train_dataloader,
         val_latents = []
         
         with torch.no_grad():
-            for label, test_data, mask in test_dataloader:
+            #for label, test_data, mask in test_dataloader:
+            for test_data in test_dataloader:
                 test_data = test_data.to(device)
                 val_outputs, val_latent = model(test_data)
                 loss = Loss_func(val_outputs, test_data)
@@ -114,3 +116,4 @@ def plot_loss(num_epochs, avg_loss_train, avg_loss_val, stop_epoch):
     plt.grid(True)
     plt.show()
     
+
