@@ -54,7 +54,7 @@ def train_val_encoder(model, optimizer, Loss_func, num_epochs, train_dataloader,
         # --- Validation ---
         model.eval()
         val_loss = 0
-        val_latents = []
+        #val_latents = []
         
         with torch.no_grad():
             #for label, test_data, mask in test_dataloader:
@@ -66,14 +66,14 @@ def train_val_encoder(model, optimizer, Loss_func, num_epochs, train_dataloader,
                 val_outputs, val_latent = model(test_data)
                 loss = Loss_func(val_outputs, test_data)
                 val_loss += loss.item()
-                val_latents.append(val_latent.detach().cpu())
+                #val_latents.append(val_latent.detach().cpu())
         
                   
         val_avg_loss = val_loss / len(test_dataloader)
         avg_loss_val.append(val_avg_loss)
         
         #Saving validation latents
-        all_val_latents.append(torch.cat(val_latents, dim = 0))
+        #all_val_latents.append(torch.cat(val_latents, dim = 0))
         
         
         print(f"Val latents: min={val_encoded.min():.4f}, max={val_encoded.max():.4f}")
@@ -92,7 +92,7 @@ def train_val_encoder(model, optimizer, Loss_func, num_epochs, train_dataloader,
             best_val_loss = val_avg_loss
             torch.save(model.state_dict(), best_model_path)
             
-            print(f'Saved new best model at epoch {epoch+1} with val_loss = {val_avg_loss:.4f}')
+            #print(f'Saved new best model at epoch {epoch+1} with val_loss = {val_avg_loss:.4f}')
 
             
         #Logging Hyperparameters
@@ -120,6 +120,7 @@ def plot_loss(num_epochs, avg_loss_train, avg_loss_val, stop_epoch):
     plt.grid(True)
     plt.show()
     
+
 
 
 
