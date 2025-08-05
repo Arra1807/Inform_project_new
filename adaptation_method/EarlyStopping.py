@@ -1,5 +1,5 @@
 class EarlyStopping():
-    def __init__(self, patience = 3, verbose = False):
+    def __init__(self, patience = 10, verbose = False):
         self.patience = patience 
         self.verbose = verbose
         self.early_stop = False
@@ -18,4 +18,5 @@ class EarlyStopping():
                 self.early_stop = True
                 
             
+
                 
