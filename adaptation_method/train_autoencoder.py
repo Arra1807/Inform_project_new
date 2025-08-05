@@ -103,21 +103,25 @@ def train_val_encoder(model, optimizer, Loss_func, num_epochs, train_dataloader,
     return all_train_latents[-1], all_val_latents[-1], avg_loss_train, avg_loss_val, stop_epoch
 
 
-def plot_loss(num_epochs, avg_loss_train, avg_loss_val, stop_epoch):
-    plt.figure(figsize=(12,8))
-    
-    plt.plot(range(1, num_epochs+1), avg_loss_train, label = 'Training Loss')
-    plt.plot(range(1, num_epochs+1), avg_loss_val, label = 'Validation Loss')
-    if stop_epoch is not None:
-        plt.axvline(x = stop_epoch, color = 'r', linestyle = '--', label = f'Early stop at Epoch{stop_epoch+1}')
+def plot_loss(num_epochs, avg_loss_train, avg_loss_val, stop_epoch, run = None):
+        plt.figure(figsize=(12,8))
         
-    plt.xlabel('Epochs')
-    plt.ylabel('Loss')
-    plt.title('Training and Validation')
-    plt.legend()
-    plt.grid(True)
-    plt.show()
-    
+        plt.plot(range(1, num_epochs+1), avg_loss_train, label = 'Training Loss')
+        plt.plot(range(1, num_epochs+1), avg_loss_val, label = 'Validation Loss')
+        if stop_epoch is not None:
+            plt.axvline(x = stop_epoch, color = 'r', linestyle = '--', label = f'Early stop at Epoch{stop_epoch+1}')
+            
+        plt.xlabel('Epochs')
+        plt.ylabel('Loss')
+        plt.title('Training and Validation')
+        plt.legend()
+        plt.grid(True)    
+        if run is not None:
+            run.log({'Loss curve': wandb.Image(plt)})
+        plt.show()
+            
+        
+
 
 
 
