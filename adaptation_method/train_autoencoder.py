@@ -43,7 +43,7 @@ def train_val_encoder(model, optimizer, Loss_func, num_epochs, train_dataloader,
         avg_loss_train.append(train_avg_loss)
         
         #Saving all epoch latents
-        all_train_latents.append(torch.cat(epoch_latents, dim = 0).cpu())
+        all_train_latents.append(torch.cat(epoch_latents, dim = 0).to(device))
 
         print(f"Train encodings: min={latent.min():.4f}, max={latent.max():.4f}")
         
@@ -69,7 +69,7 @@ def train_val_encoder(model, optimizer, Loss_func, num_epochs, train_dataloader,
         avg_loss_val.append(val_avg_loss)
         
         #Saving validation latents
-        all_val_latents.append(torch.cat(val_latents, dim = 0).cpu())
+        all_val_latents.append(torch.cat(val_latents, dim = 0).to(device))
         
         
         print(f"Val latents: min={val_latent.min():.4f}, max={val_latent.max():.4f}")
@@ -121,6 +121,7 @@ def plot_loss(num_epochs, avg_loss_train, avg_loss_val, stop_epoch, run = None):
         plt.show()
             
         
+
 
 
 
