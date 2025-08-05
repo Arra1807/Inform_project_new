@@ -72,7 +72,7 @@ def train_val_encoder(model, optimizer, Loss_func, num_epochs, train_dataloader,
         all_val_latents.append(torch.cat(val_latents, dim = 0).cpu())
         
         
-        print(f"Val latents: min={val_encoded.min():.4f}, max={val_encoded.max():.4f}")
+        print(f"Val latents: min={val_latents.min():.4f}, max={val_latents.max():.4f}")
         
         print(f" Train Loss = {train_avg_loss:.4f} ,Validation Loss = {val_avg_loss:.4f}")
         
@@ -116,6 +116,7 @@ def plot_loss(num_epochs, avg_loss_train, avg_loss_val, stop_epoch):
     plt.grid(True)
     plt.show()
     
+
 
 
 
