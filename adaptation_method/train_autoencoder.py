@@ -2,11 +2,7 @@ import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
 import torch.optim as optim
-from torch.utils.data import dataloader
 from tqdm import tqdm 
-import torch.nn.functional as F
-import sys
-sys.path.append('C:/Users/shado/Documents/Master Thesis/INFORM_marine-main_new/INFORM_marine-main/adaptation_method')
 from Inform_project_new.adaptation_method.EarlyStopping import EarlyStopping
 
 def train_val_encoder(model, optimizer, Loss_func, num_epochs, train_dataloader, test_dataloader, run):
@@ -120,6 +116,7 @@ def plot_loss(num_epochs, avg_loss_train, avg_loss_val, stop_epoch):
     plt.grid(True)
     plt.show()
     
+
 
 
 
