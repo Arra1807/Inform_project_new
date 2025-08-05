@@ -98,6 +98,8 @@ def train_val_encoder(model, optimizer, Loss_func, num_epochs, train_dataloader,
             'val_loss': val_avg_loss,
         })
 
+    run.finish()
+
     return all_train_latents[-1], all_val_latents[-1], avg_loss_train, avg_loss_val, stop_epoch
 
 
@@ -116,6 +118,7 @@ def plot_loss(num_epochs, avg_loss_train, avg_loss_val, stop_epoch):
     plt.grid(True)
     plt.show()
     
+
 
 
 
