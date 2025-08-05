@@ -1,10 +1,10 @@
 from Inform_project_new.adaptation_method.Autoencoder import ResNetAutoEncoder, Autoencoder
 import wandb
-def Configuration(model_name = 'Autoencoder'):    
+def Configuration(model_name = ''):    
     run = wandb.init(
         project= 'Adapter',
-        config = { 
-            'model': model_name,
+        name = f'{model_name}_run'
+        config = {
             'batch_size': 32,
             'learning_rate': 1e-5,        
             'epochs': 50,
@@ -12,5 +12,6 @@ def Configuration(model_name = 'Autoencoder'):
         }, 
     )
     return run
+
 
 
