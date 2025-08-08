@@ -3,7 +3,7 @@ import wandb
 def Configuration(model_name = ''):    
     run = wandb.init(
         project= 'Adapter',
-        name = f'{model_name}_run'
+        name = f'{model_name}_run',
         config = {
             'batch_size': 32,
             'learning_rate': 1e-3,        
@@ -12,6 +12,7 @@ def Configuration(model_name = ''):
         }, 
     )
     return run
+
 
 
 
