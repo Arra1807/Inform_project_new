@@ -37,19 +37,25 @@ def get_echograms(years, tuple_frequencies, minimum_shape):
            (e.shape[1] == e.heave.shape[0]) and
            (tuple(e.frequencies) == tuple_frequencies)
     ]
+    for e in echograms:
+        all_echograms[e.year].append(e)
 
     if years != 'all':
         # Ensure years is iterable
         if not isinstance(years, (list,tuple, np.ndarray)):
             years = [years]
-
-        # Filter on years
-        final_echograms = [e for e in echograms if e.year in years]
+            
+        for year in years:
+            if year in all_echograms:
+                samples = random.sample(all_echograms[year], 
+                                    min(10, len(all_echograms[year])))
+                print(f"Selected {len(samples)} echograms from year {year}")
+                # Extend the final list with the selected echograms from this year      
+                final_echograms.extend(samples)
+            else:
+                print(f"No echograms found for year {year}")
     else:
-        if years == 'all':
             #Group echograms by year
-            for e in echograms:
-                all_echograms[e.year].append(e)
             #Select 10 random echograms from each year
             for year in all_echograms:
                 year_samples = random.sample(all_echograms[year], 
@@ -58,8 +64,7 @@ def get_echograms(years, tuple_frequencies, minimum_shape):
                 # Extend the final list with the selected echograms from this year
                 final_echograms.extend(year_samples)
             
-    return final_echograms
-    
+    return final_echograms    
 
 
 # Count the number of classes in the echograms
