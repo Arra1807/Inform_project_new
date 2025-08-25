@@ -1,7 +1,6 @@
 from Inform_project_new.data.echosounder_data.load_data import data_paths  
 from Inform_project_new.data.echosounder_data.load_data.echogram import Echogram 
-import data_paths
-from echogram import Echogram
+
 
 import os
 from collections import defaultdict
