@@ -15,20 +15,15 @@ def train_val_encoder(model, optimizer, Loss_func, num_epochs, train_dataloader,
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
     
-    all_train_latents = []
-    all_val_latents = []
-    
     #---Training---
     for epoch in range(num_epochs):
         model.train()
         epoch_loss = 0
-        epoch_latents = []
         
-        #for label, train_data, mask in tqdm(train_dataloader, desc=f'Epoch {epoch+1}/{num_epochs}'):
-        for train_data in tqdm(train_dataloader, desc=f'Epoch {epoch+1}/{num_epochs}'):
-            #label = label.to(device)
-            train_data = train_data.to(device)
-            #mask = mask.to(device)
+        for label, train_data, mask in tqdm(train_dataloader, desc=f'Epoch {epoch+1}/{num_epochs}'):
+        #for train_data in tqdm(train_dataloader, desc=f'Epoch {epoch+1}/{num_epochs}'):
+            train_data = train_data.to(device, non_blocking = True)
+
             optimizer.zero_grad()
             
             outputs, latent = model(train_data)
@@ -37,39 +32,29 @@ def train_val_encoder(model, optimizer, Loss_func, num_epochs, train_dataloader,
             optimizer.step()
             
             epoch_loss += loss.item()
-            epoch_latents.append(latent.detach().cpu())
 
         train_avg_loss = epoch_loss / len(train_dataloader)
         avg_loss_train.append(train_avg_loss)
-        
-        #Saving all epoch latents
-        all_train_latents.append(torch.cat(epoch_latents, dim = 0).to(device))
+  
 
         print(f"Train encodings: min={latent.min():.4f}, max={latent.max():.4f}")
         
         # --- Validation ---
         model.eval()
         val_loss = 0
-        val_latents = []
         
         with torch.no_grad():
-            #for label, test_data, mask in test_dataloader:
-            for test_data in test_dataloader:
-                #label = label.to(device)
+            for label, test_data, mask in test_dataloader:
                 test_data = test_data.to(device)
-                #mask = mask.to(device)
                 
                 val_outputs, val_latent = model(test_data)
                 loss = Loss_func(val_outputs, test_data)
                 val_loss += loss.item()
-                val_latents.append(val_latent.detach().cpu())
+
         
                   
         val_avg_loss = val_loss / len(test_dataloader)
         avg_loss_val.append(val_avg_loss)
-        
-        #Saving validation latents
-        all_val_latents.append(torch.cat(val_latents, dim = 0).to(device))
         
         
         print(f"Val latents: min={val_latent.min():.4f}, max={val_latent.max():.4f}")
@@ -100,7 +85,7 @@ def train_val_encoder(model, optimizer, Loss_func, num_epochs, train_dataloader,
 
     run.finish()
 
-    return all_train_latents[-1], all_val_latents[-1], avg_loss_train, avg_loss_val, stop_epoch
+    return latent, val_latent, avg_loss_train, avg_loss_val, stop_epoch
 
 
 def plot_loss(num_epochs, avg_loss_train, avg_loss_val, stop_epoch, run = None):
@@ -120,7 +105,9 @@ def plot_loss(num_epochs, avg_loss_train, avg_loss_val, stop_epoch, run = None):
             run.log({'Loss curve': wandb.Image(plt)})
         plt.show()
             
+            
         
+
 
 
 
